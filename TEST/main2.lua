@@ -1271,7 +1271,9 @@ local function LocalScript_3_generatedScript()
     local script = Instance.new('LocalScript')
     script.Name = "LocalScript"
     script.Parent = ToggleBT_2
-    local toggleButton = script.Parent
+    -- Este script vai DENTRO do botão: ScreenGui.Frame.MainFR.BrainrotGodFR.ToggleBT
+    -- Crie um LocalScript dentro do botão e cole este código
+    local toggleButton = script.Parent -- O próprio botão
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
     local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -1282,7 +1284,8 @@ local function LocalScript_3_generatedScript()
     local player = Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local AUTO_ACTIVATE = false
+    -- Variáveis de controle
+    local AUTO_ACTIVATE = false -- Começa desativado
     local SCRIPT_ACTIVE = false
     local MAX_DISTANCE = 15
     local ACTIVATION_DELAY = 0.1
@@ -1293,35 +1296,28 @@ local function LocalScript_3_generatedScript()
     local processedPrompts = {}
     local scanQueue = {}
     local targetNamesCache = {}
-    local defaultNames = {
-    	"Noobini Pizzanini",
-    	"Cocofanto Elefanto",
-    	"Tralalero Tralala", 
-    	"Odin Din Din Dun",
-    	"Girafa Celestre",
-    	"Gattatino Nyanino",
-    	"Trenostruzzo Turbo 3000",
-    	"Matteo"
-    }
+    -- Sem nomes padrão - só funciona com seleção
+    local defaultNames = {}
+    -- Função para carregar nomes selecionados
     local function loadSelectedNames()
     	local folder = ReplicatedStorage:FindFirstChild("BrainrotSystem")
     	if not folder then
-    		print("⚠️ Sistema de seleção não encontrado, usando nomes padrão")
-    		return defaultNames
+    		print("⚠️ Sistema de seleção não encontrado - SELECIONE NOMES PRIMEIRO!")
+    		return {}
     	end
     	local config = folder:FindFirstChild("SelectedNames")
     	if not config then
-    		print("⚠️ Nenhuma seleção encontrada, usando nomes padrão")
-    		return defaultNames
+    		print("⚠️ Nenhuma seleção encontrada - USE O SELETOR PRIMEIRO!")
+    		return {}
     	end
     	if config.Value == "" then
-    		print("⚠️ Seleção vazia, usando nomes padrão")
-    		return defaultNames
+    		print("⚠️ Seleção vazia - SELECIONE PELO MENOS 1 NOME!")
+    		return {}
     	end
     	local selectedNames = string.split(config.Value, "|||")
     	if #selectedNames == 0 then
-    		print("⚠️ Nenhum nome selecionado, usando nomes padrão")
-    		return defaultNames
+    		print("⚠️ Nenhum nome selecionado - USE O SELETOR!")
+    		return {}
     	end
     	print("✅ Nomes carregados do seletor:", #selectedNames)
     	for i, name in ipairs(selectedNames) do
@@ -1329,9 +1325,11 @@ local function LocalScript_3_generatedScript()
     	end
     	return selectedNames
     end
+    -- Função para atualizar nomes alvo
     local function updateTargetNames()
     	local newNames = loadSelectedNames()
     	targetNames = newNames
+    	-- Atualiza cache
     	targetNamesCache = {}
     	for i, name in pairs(targetNames) do
     		targetNamesCache[i] = {
@@ -1341,28 +1339,32 @@ local function LocalScript_3_generatedScript()
     	end
     	print("🎯 Alvos atualizados:", #targetNames)
     end
+    -- Função para atualizar o visual do botão
     local function updateButtonAppearance()
     	local count = #targetNames
     	if AUTO_ACTIVATE then
     		toggleButton.Text = "(" .. count .. ")"
-    		toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    		toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Verde
     		toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     	else
     		toggleButton.Text = "(" .. count .. ")"
-    		toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    		toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho
     		toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     	end
     end
+    -- Função para monitorar mudanças na seleção
     local function monitorSelectionChanges()
     	local folder = ReplicatedStorage:FindFirstChild("BrainrotSystem")
     	if not folder then
+    		-- Cria pasta se não existir
     		folder = Instance.new("Folder")
     		folder.Name = "BrainrotSystem"
     		folder.Parent = ReplicatedStorage
     	end
+    	-- Monitora mudanças na configuração
     	folder.ChildAdded:Connect(function(child)
     		if child.Name == "SelectedNames" and child:IsA("StringValue") then
-    			wait(0.1)
+    			wait(0.1) -- Pequeno delay para garantir que o valor foi definido
     			updateTargetNames()
     			updateButtonAppearance()
     		end
@@ -1563,16 +1565,31 @@ local function LocalScript_3_generatedScript()
     	print("❌ Brainrot Auto Compra: DESATIVADO")
     end
     local function toggleScript()
+    	-- Verifica se tem nomes selecionados antes de ativar
+    	if not AUTO_ACTIVATE and #targetNames == 0 then
+    		print("❌ ERRO: Nenhum Brainrot selecionado!")
+    		print("🎯 Use o seletor primeiro!")
+    		return
+    	end
     	AUTO_ACTIVATE = not AUTO_ACTIVATE
     	updateButtonAppearance()
     	if AUTO_ACTIVATE then
+    		-- Atualiza nomes antes de iniciar
     		updateTargetNames()
+    		if #targetNames == 0 then
+    			print("❌ ERRO: Lista de alvos vazia!")
+    			AUTO_ACTIVATE = false
+    			updateButtonAppearance()
+    			return
+    		end
     		startScript()
     	else
     		stopScript()
     	end
     end
+    -- EVENTO PRINCIPAL DO BOTÃO
     toggleButton.MouseButton1Click:Connect(toggleScript)
+    -- Recarregar quando character respawnar
     local function onCharacterAdded(newCharacter)
     	character = newCharacter
     	humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -1583,19 +1600,24 @@ local function LocalScript_3_generatedScript()
     	end
     end
     player.CharacterAdded:Connect(onCharacterAdded)
+    -- Cleanup quando sair
     game.Players.PlayerRemoving:Connect(function(leavingPlayer)
     	if leavingPlayer == player then
     		stopScript()
     	end
     end)
+    -- INICIALIZAÇÃO
     print("=== 🧠 Brainrot Auto Compra V8 - Seletor Integrado ===")
+    -- Carrega nomes iniciais
     updateTargetNames()
     updateButtonAppearance()
+    -- Inicia monitoramento de mudanças
     monitorSelectionChanges()
     print("✅ Script carregado no botão!")
     print("📝 Nomes carregados:", #targetNames)
     print("🎯 Clique no botão para ativar/desativar")
     print("🔄 Use o seletor para escolher quais nomes comprar")
+    -- Scan inicial após 2 segundos
     coroutine.wrap(function()
     	wait(2)
     	if AUTO_ACTIVATE then
@@ -1608,11 +1630,9 @@ local function LocalScript_4_generatedScript()
     local script = Instance.new('LocalScript')
     script.Name = "LocalScript"
     script.Parent = Frame_1
-    local container   = script.Parent
-    local toggleBtn   = container:WaitForChild("Toggle")
-    local scrollingFR = container:WaitForChild("ScrollingFrame")
-    local listSR      = container:WaitForChild("ListSR")
-    local confirmBtn  = container:WaitForChild("ConfirmBtn")
+    -- LocalScript dentro de: ScreenGui.Frame.CustomFR.Frame
+    local container = script.Parent
+    -- nomes pra popular
     local names = {
     	"Noobini Pizzanini",
     	"Lirilì Larilà", 
@@ -1629,132 +1649,248 @@ local function LocalScript_4_generatedScript()
     	"Trenostruzzo Turbo 3000",
     	"Matteo"
     }
+    -- guarda quem está selecionado
     local selected = {}
+    -- Sistema de comunicação com o auto-buy
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    -- CRIAR TODOS OS ELEMENTOS AUTOMATICAMENTE
+    print("🔧 Criando interface do seletor...")
+    -- Botão Toggle
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Name = "Toggle"
+    toggleBtn.Size = UDim2.new(1, 0, 0, 35)
+    toggleBtn.Position = UDim2.new(0, 0, 0, 0)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    toggleBtn.BorderSizePixel = 0
+    toggleBtn.Font = Enum.Font.Arcade
+    toggleBtn.TextSize = 16
+    toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleBtn.Text = "🎯 SELECIONAR BRAINROTS"
+    toggleBtn.Parent = container
+    -- ScrollingFrame (menu de seleção)
+    local scrollingFR = Instance.new("ScrollingFrame")
+    scrollingFR.Name = "ScrollingFrame"
+    scrollingFR.Size = UDim2.new(1, 0, 0, 200)
+    scrollingFR.Position = UDim2.new(0, 0, 0, 40)
+    scrollingFR.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    scrollingFR.BackgroundTransparency = 0.1
+    scrollingFR.BorderSizePixel = 0
+    scrollingFR.ScrollBarThickness = 8
+    scrollingFR.Visible = false
+    scrollingFR.Parent = container
+    -- Botão Confirmar
+    local confirmBtn = Instance.new("TextButton")
+    confirmBtn.Name = "ConfirmBtn"
+    confirmBtn.Size = UDim2.new(1, 0, 0, 30)
+    confirmBtn.Position = UDim2.new(0, 0, 0, 245)
+    confirmBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    confirmBtn.BorderSizePixel = 0
+    confirmBtn.Font = Enum.Font.Arcade
+    confirmBtn.TextSize = 14
+    confirmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    confirmBtn.Text = "CONFIRMAR (0)"
+    confirmBtn.Visible = false
+    confirmBtn.Parent = container
+    -- Frame da lista selecionados
+    local listSR = Instance.new("ScrollingFrame")
+    listSR.Name = "ListSR"
+    listSR.Size = UDim2.new(1, 0, 0, 150)
+    listSR.Position = UDim2.new(0, 0, 0, 280)
+    listSR.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    listSR.BackgroundTransparency = 0.2
+    listSR.BorderSizePixel = 0
+    listSR.ScrollBarThickness = 6
+    listSR.Visible = false
+    listSR.Parent = container
+    -- Título da lista
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "TitleLabel"
+    titleLabel.Size = UDim2.new(1, 0, 0, 25)
+    titleLabel.Position = UDim2.new(0, 0, 0, 255)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Font = Enum.Font.Arcade
+    titleLabel.TextSize = 12
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+    titleLabel.Text = "📋 SELECIONADOS:"
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Visible = false
+    titleLabel.Parent = container
+    print("✅ Interface criada!")
+    -- Cria a pasta de comunicação se não existir
     local function getOrCreateFolder()
     	local folder = ReplicatedStorage:FindFirstChild("BrainrotSystem")
     	if not folder then
     		folder = Instance.new("Folder")
     		folder.Name = "BrainrotSystem"
     		folder.Parent = ReplicatedStorage
+    		print("📁 Pasta BrainrotSystem criada")
     	end
     	return folder
     end
+    -- Função para salvar nomes selecionados
     local function saveSelectedNames()
     	local folder = getOrCreateFolder()
+    	-- Remove configuração antiga
     	local oldConfig = folder:FindFirstChild("SelectedNames")
     	if oldConfig then
     		oldConfig:Destroy()
     	end
+    	-- Cria nova configuração
     	local config = Instance.new("StringValue")
     	config.Name = "SelectedNames"
     	config.Parent = folder
+    	-- Converte tabela selected para string
     	local selectedList = {}
     	for name in pairs(selected) do
     		table.insert(selectedList, name)
     	end
+    	-- Junta os nomes com separador
     	local joinedNames = table.concat(selectedList, "|||")
     	config.Value = joinedNames
     	print("✅ Nomes selecionados salvos:", #selectedList)
+    	for i, name in ipairs(selectedList) do
+    		print("  " .. i .. ". " .. name)
+    	end
     end
+    -- popula o menu de opções
     local function populateScrolling()
     	scrollingFR:ClearAllChildren()
     	local y = 0
     	for _, name in ipairs(names) do
     		local btn = Instance.new("TextButton")
-    		btn.Name                   = name
-    		btn.Size                   = UDim2.new(0, 280, 0, 28)
-    		btn.Position               = UDim2.new(0, 0, 0, y)
-    		btn.BackgroundColor3       = Color3.new(0,0,0)
-    		btn.BackgroundTransparency = 0.35
-    		btn.BorderSizePixel        = 0
-    		btn.Font                   = Enum.Font.Arcade
-    		btn.TextSize               = 14
-    		btn.TextColor3             = Color3.new(1,1,1)
-    		btn.Text                   = name
-    		btn.Parent                 = scrollingFR
+    		btn.Name = name
+    		btn.Size = UDim2.new(1, -10, 0, 28)
+    		btn.Position = UDim2.new(0, 5, 0, y)
+    		btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    		btn.BackgroundTransparency = 0.2
+    		btn.BorderSizePixel = 0
+    		btn.Font = Enum.Font.Arcade
+    		btn.TextSize = 12
+    		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    		btn.Text = name
+    		btn.TextXAlignment = Enum.TextXAlignment.Left
+    		btn.Parent = scrollingFR
+    		-- Se já está selecionado, mostra visualmente
     		if selected[name] then
-    			btn.BackgroundTransparency = 0.7
+    			btn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+    			btn.Text = "✅ " .. name
     		end
     		btn.MouseButton1Click:Connect(function()
+    			-- alterna seleção
     			if selected[name] then
     				selected[name] = nil
-    				btn.BackgroundTransparency = 0.35
-    				btn.BackgroundColor3 = Color3.new(0,0,0)
+    				btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    				btn.Text = name
     			else
     				selected[name] = true
-    				btn.BackgroundTransparency = 0.7
-    				btn.BackgroundColor3 = Color3.new(0,0.5,0)
+    				btn.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+    				btn.Text = "✅ " .. name
     			end
+    			-- Atualiza contador
+    			local count = 0
+    			for _ in pairs(selected) do count = count + 1 end
+    			confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
     		end)
     		y = y + 32
     	end
     	scrollingFR.CanvasSize = UDim2.new(0, 0, 0, y)
     end
+    -- atualiza a lista de selecionados
     local function refreshList()
     	listSR:ClearAllChildren()
     	local y = 0
     	for name in pairs(selected) do
     		local entry = Instance.new("Frame")
-    		entry.Size               = UDim2.new(1, 0, 0, 28)
-    		entry.Position           = UDim2.new(0, 0, 0, y)
+    		entry.Size = UDim2.new(1, -10, 0, 28)
+    		entry.Position = UDim2.new(0, 5, 0, y)
     		entry.BackgroundTransparency = 1
-    		entry.Parent             = listSR
+    		entry.Parent = listSR
     		local lbl = Instance.new("TextLabel")
-    		lbl.Size                 = UDim2.new(0.85, 0, 1, 0)
-    		lbl.Position             = UDim2.new(0, 0, 0, 0)
+    		lbl.Size = UDim2.new(0.8, 0, 1, 0)
+    		lbl.Position = UDim2.new(0, 0, 0, 0)
     		lbl.BackgroundTransparency = 1
-    		lbl.Font                 = Enum.Font.Arcade
-    		lbl.TextSize             = 14
-    		lbl.TextColor3           = Color3.new(1,1,1)
-    		lbl.Text                 = name
-    		lbl.TextXAlignment       = Enum.TextXAlignment.Left
-    		lbl.Parent               = entry
+    		lbl.Font = Enum.Font.Arcade
+    		lbl.TextSize = 11
+    		lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    		lbl.Text = "• " .. name
+    		lbl.TextXAlignment = Enum.TextXAlignment.Left
+    		lbl.Parent = entry
     		local btnX = Instance.new("TextButton")
-    		btnX.Size                 = UDim2.new(0.15, 0, 1, 0)
-    		btnX.Position             = UDim2.new(0.85, 0, 0, 0)
-    		btnX.Font                 = Enum.Font.Arcade
-    		btnX.TextSize             = 14
-    		btnX.TextColor3           = Color3.new(1,0,0)
-    		btnX.Text                 = "×"
-    		btnX.BackgroundTransparency = 0.5
-    		btnX.BackgroundColor3     = Color3.new(0.5,0,0)
-    		btnX.Parent               = entry
+    		btnX.Size = UDim2.new(0.2, 0, 1, 0)
+    		btnX.Position = UDim2.new(0.8, 0, 0, 0)
+    		btnX.Font = Enum.Font.Arcade
+    		btnX.TextSize = 12
+    		btnX.TextColor3 = Color3.fromRGB(255, 100, 100)
+    		btnX.Text = "❌"
+    		btnX.BackgroundTransparency = 1
+    		btnX.Parent = entry
     		btnX.MouseButton1Click:Connect(function()
     			selected[name] = nil
     			refreshList()
-    			populateScrolling()
+    			populateScrolling() -- Atualiza o menu também
+    			-- Atualiza contador
+    			local count = 0
+    			for _ in pairs(selected) do count = count + 1 end
+    			confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
     		end)
     		y = y + 32
     	end
-    	if listSR:IsA("ScrollingFrame") then
-    		listSR.CanvasSize = UDim2.new(0, 0, 0, y)
-    	end
-    	local count = 0
-    	for _ in pairs(selected) do count = count + 1 end
-    	confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
+    	listSR.CanvasSize = UDim2.new(0, 0, 0, y)
     end
+    -- abre/fecha o menu de seleção
     toggleBtn.MouseButton1Click:Connect(function()
     	if scrollingFR.Visible then
+    		-- Fecha tudo
     		scrollingFR.Visible = false
+    		confirmBtn.Visible = false
     		listSR.Visible = false
+    		titleLabel.Visible = false
+    		toggleBtn.Text = "🎯 SELECIONAR BRAINROTS"
+    		toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     	else
+    		-- Abre menu de seleção
     		scrollingFR.Visible = true
+    		confirmBtn.Visible = true
     		listSR.Visible = false
+    		titleLabel.Visible = false
+    		toggleBtn.Text = "❌ FECHAR SELETOR"
+    		toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+    		populateScrolling()
     	end
     end)
+    -- confirma seleção
     confirmBtn.MouseButton1Click:Connect(function()
+    	local count = 0
+    	for _ in pairs(selected) do count = count + 1 end
+    	if count == 0 then
+    		-- Aviso se nenhum selecionado
+    		confirmBtn.Text = "⚠️ SELECIONE PELO MENOS 1!"
+    		confirmBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
+    		wait(2)
+    		confirmBtn.Text = "CONFIRMAR (0)"
+    		confirmBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    		return
+    	end
+    	-- Fecha menu e mostra lista
     	scrollingFR.Visible = false
-    	refreshList()
+    	confirmBtn.Visible = false
+    	titleLabel.Visible = true
     	listSR.Visible = true
-    	saveSelectedNames()
+    	toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
+    	toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+    	refreshList()
+    	saveSelectedNames() -- Salva os nomes selecionados
+    	print("🎯 Seleção confirmada:", count, "nomes")
     end)
+    -- Função para carregar seleção salva (opcional)
     local function loadSavedSelection()
     	local folder = ReplicatedStorage:FindFirstChild("BrainrotSystem")
     	if not folder then return end
     	local config = folder:FindFirstChild("SelectedNames")
     	if not config then return end
+    	-- Limpa seleção atual
     	selected = {}
+    	-- Carrega nomes salvos
     	if config.Value ~= "" then
     		local savedNames = string.split(config.Value, "|||")
     		for _, name in ipairs(savedNames) do
@@ -1763,15 +1899,21 @@ local function LocalScript_4_generatedScript()
     	end
     	print("📁 Seleção carregada:", config.Value)
     end
-    scrollingFR.Visible = false
-    listSR.Visible      = false
-    confirmBtn.Text     = "CONFIRMAR (0)"
+    -- inicialização
+    print("=== 🎯 Brainrot Selector V3 - Auto Interface ===")
+    -- Carrega seleção salva (se existir)
     loadSavedSelection()
-    populateScrolling()
-    refreshList()
-    print("=== 🎯 Brainrot Selector V2 ===")
+    -- Mostra quantos já estão selecionados
+    local count = 0
+    for _ in pairs(selected) do count = count + 1 end
+    if count > 0 then
+    	toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
+    	toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+    	confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
+    end
     print("✅ Script carregado!")
     print("📝 Total de nomes disponíveis:", #names)
+    print("🎯 Nomes já selecionados:", count)
 end
 task.spawn(LocalScript_4_generatedScript)
 local function LocalScript_5_generatedScript()
@@ -1782,22 +1924,28 @@ local function LocalScript_5_generatedScript()
     local boll = toggle:WaitForChild("Boll")
     local toggled = false
     local tweenService = game:GetService("TweenService")
+    -- Configurações de tween
     local tweenInfo = TweenInfo.new(
-    	0.3,
+    	0.3, -- duração
     	Enum.EasingStyle.Sine,
     	Enum.EasingDirection.Out
     )
+    -- Posições e cores
     local offPosition = UDim2.new(0, 0, 0, 0)
     local onPosition = UDim2.new(0.5, 0, 0, 0)
-    local offColor = Color3.fromRGB(255, 255, 255)
-    local onColor = Color3.fromRGB(255, 255, 255)
+    local offColor = Color3.fromRGB(255, 50, 50) -- Vermelho
+    local onColor = Color3.fromRGB(50, 255, 50) -- Verde
+    -- Inicial: desativado
     boll.Position = offPosition
     boll.BackgroundColor3 = offColor
     toggle.MouseButton1Click:Connect(function()
     	toggled = not toggled
+    	-- Define o destino com base no estado
     	local targetPosition = toggled and onPosition or offPosition
     	local targetColor = toggled and onColor or offColor
+    	-- Tween de posição
     	local moveTween = tweenService:Create(boll, tweenInfo, {Position = targetPosition})
+    	-- Tween de cor
     	local colorTween = tweenService:Create(boll, tweenInfo, {BackgroundColor3 = targetColor})
     	moveTween:Play()
     	colorTween:Play()
@@ -1812,22 +1960,28 @@ local function LocalScript_6_generatedScript()
     local boll = toggle:WaitForChild("Boll")
     local toggled = false
     local tweenService = game:GetService("TweenService")
+    -- Configurações de tween
     local tweenInfo = TweenInfo.new(
-    	0.3,
+    	0.3, -- duração
     	Enum.EasingStyle.Sine,
     	Enum.EasingDirection.Out
     )
+    -- Posições e cores
     local offPosition = UDim2.new(0, 0, 0, 0)
     local onPosition = UDim2.new(0.5, 0, 0, 0)
-    local offColor = Color3.fromRGB(255, 255, 255)
-    local onColor = Color3.fromRGB(255, 255, 255)
+    local offColor = Color3.fromRGB(255, 50, 50) -- Vermelho
+    local onColor = Color3.fromRGB(50, 255, 50) -- Verde
+    -- Inicial: desativado
     boll.Position = offPosition
     boll.BackgroundColor3 = offColor
     toggle.MouseButton1Click:Connect(function()
     	toggled = not toggled
+    	-- Define o destino com base no estado
     	local targetPosition = toggled and onPosition or offPosition
     	local targetColor = toggled and onColor or offColor
+    	-- Tween de posição
     	local moveTween = tweenService:Create(boll, tweenInfo, {Position = targetPosition})
+    	-- Tween de cor
     	local colorTween = tweenService:Create(boll, tweenInfo, {BackgroundColor3 = targetColor})
     	moveTween:Play()
     	colorTween:Play()
