@@ -82,6 +82,7 @@ ScreenGui.Parent = game:GetService('CoreGui')
 Frame.BackgroundColor3 = Color3.new(0.000000, 0.000000, 0.000000)
 Frame.BorderColor3 = Color3.new(0.000000, 0.000000, 0.000000)
 Frame.BorderSizePixel = 0.000000
+Frame.Position = UDim2.new(0.637594, 0, 0.128601, 0)
 Frame.Size = UDim2.new(0.247547, 0, 0.741065, 0)
 Frame.Parent = ScreenGui
 TextLabel.BackgroundColor3 = Color3.new(0.000000, 0.000000, 0.000000)
@@ -337,7 +338,7 @@ UIStroke_4.Transparency = 0.000000
 UIStroke_4.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
 UIStroke_4.Color = Color3.new(1.000000, 1.000000, 1.000000)
 UIStroke_4.Parent = ScrollingFrame
-UIListLayout.Padding = UDim.new(0.020000, 0)
+UIListLayout.Padding = UDim.new(0.010000, 0)
 UIListLayout.FillDirection = Enum.FillDirection.Vertical
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Wraps = false
@@ -349,7 +350,7 @@ UIListLayout.VerticalFlex = Enum.UIFlexAlignment.None
 UIListLayout.Parent = ScrollingFrame
 UIPadding.PaddingTop = UDim.new(0.000000, 0)
 UIPadding.PaddingBottom = UDim.new(0.000000, 0)
-UIPadding.PaddingLeft = UDim.new(0.010000, 0)
+UIPadding.PaddingLeft = UDim.new(0.020000, 0)
 UIPadding.PaddingRight = UDim.new(0.000000, 0)
 UIPadding.Parent = ScrollingFrame
 Toggle.BackgroundColor3 = Color3.new(0.231373, 0.231373, 0.231373)
@@ -1372,6 +1373,8 @@ local function LocalScript_3_generatedScript()
     local scrollingFR = container:WaitForChild("ScrollingFrame")
     local listFR = container:WaitForChild("ListFR")
     local inf = container:WaitForChild('TextLabel')
+    -- Referência ao toggle visual (boll)
+    local boll = autoBuyBtn:FindFirstChild("Boll")
     -- Criar botão de confirmar se não existir
     local confirmBtn = container:FindFirstChild("ConfirmBtn")
     if not confirmBtn then
@@ -1401,6 +1404,22 @@ local function LocalScript_3_generatedScript()
     	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     	titleLabel.Visible = false
     	titleLabel.Parent = container
+    end
+    -- Função para atualizar toggle visual (corrigida)
+    local function updateToggleVisual()
+    	if not boll then return end
+    	local tweenService = game:GetService("TweenService")
+    	local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+    	local offPosition = UDim2.new(0.02, 0, 0.018, 0)
+    	local onPosition = UDim2.new(0.55, 0, 0, 0)
+    	local offColor = Color3.fromRGB(255, 0, 0)      -- Vermelho (OFF)
+    	local onColor = Color3.fromRGB(0, 255, 0)       -- Verde (ON)
+    	local targetPosition = AUTO_ACTIVATE and onPosition or offPosition
+    	local targetColor = AUTO_ACTIVATE and onColor or offColor
+    	local moveTween = tweenService:Create(boll, tweenInfo, {Position = targetPosition})
+    	local colorTween = tweenService:Create(autoBuyBtn, tweenInfo, {BackgroundColor3 = targetColor})
+    	moveTween:Play()
+    	colorTween:Play()
     end
     -- Função CORRIGIDA para descobrir nomes disponíveis (APENAS da lista fixa)
     local function scanForAvailableNames()
@@ -1433,6 +1452,7 @@ local function LocalScript_3_generatedScript()
     		selectedNamesValue.Parent = brainrotFolder
     	end
     end
+    -- Função corrigida para salvar nomes selecionados
     local function saveSelectedNames()
     	if not selectedNamesValue then return end
     	local selectedList = {}
@@ -1441,8 +1461,12 @@ local function LocalScript_3_generatedScript()
     	end
     	local joinedNames = table.concat(selectedList, "|||")
     	selectedNamesValue.Value = joinedNames
+    	-- Aguardar um pouco e confirmar o salvamento
     	wait(0.1)
     	selectedNamesValue.Value = joinedNames
+    	-- Limpar cache de processamento quando a seleção muda
+    	processedPrompts = {}
+    	lastActivation = {}
     end
     local function loadSavedSelection()
     	if not selectedNamesValue then return end
@@ -1494,6 +1518,7 @@ local function LocalScript_3_generatedScript()
     	lastKnownValue = currentValue
     	return validNames
     end
+    -- Função corrigida para atualizar nomes alvo
     local function updateTargetNames()
     	local newNames = loadSelectedNames()
     	targetNames = newNames
@@ -1504,18 +1529,14 @@ local function LocalScript_3_generatedScript()
     			lower = name:lower()
     		}
     	end
+    	-- Limpar prompts processados quando targets mudam
+    	processedPrompts = {}
+    	lastActivation = {}
     end
+    -- Função corrigida para aparência do botão
     local function updateButtonAppearance()
     	local count = #targetNames
-    	if AUTO_ACTIVATE then
-    		autoBuyBtn.Text = " "
-    		autoBuyBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    		autoBuyBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
-    	else
-    		autoBuyBtn.Text = " "
-    		autoBuyBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    		autoBuyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    	end
+    	updateToggleVisual() -- Usar a função do toggle visual
     end
     local function setupChangeMonitoring()
     	if not selectedNamesValue then return end
@@ -1743,6 +1764,14 @@ local function LocalScript_3_generatedScript()
     	inf.Visible = true
     	-- listFR e titleLabel serão mostrados conforme necessário na função refreshList
     end
+    -- Função corrigida para contar selecionados
+    local function getSelectedCount()
+    	local count = 0
+    	for _ in pairs(selected) do 
+    		count = count + 1 
+    	end
+    	return count
+    end
     -- Função corrigida para popular o scrolling com seu estilo visual
     local function populateScrolling()
     	-- Limpar botões existentes
@@ -1755,20 +1784,20 @@ local function LocalScript_3_generatedScript()
     	for _, name in ipairs(availableNames) do
     		local btn = Instance.new("TextButton")
     		btn.Name = name
-    		btn.Size = UDim2.new(0, 280, 0, 28)  -- Usando seu tamanho
+    		btn.Size = UDim2.new(0, 280, 0, 28)
     		btn.Position = UDim2.new(0, 0, 0, y)
-    		btn.BackgroundColor3 = Color3.new(0, 0, 0)  -- Cor preta como no seu código
-    		btn.BackgroundTransparency = 0.35  -- Transparência padrão
+    		btn.BackgroundColor3 = Color3.new(0, 0, 0)
+    		btn.BackgroundTransparency = 0.35
     		btn.BorderSizePixel = 0
     		btn.Font = Enum.Font.Arcade
-    		btn.TextSize = 14  -- Tamanho do seu código
-    		btn.TextColor3 = Color3.new(1, 1, 1)  -- Branco
+    		btn.TextSize = 14
+    		btn.TextColor3 = Color3.new(1, 1, 1)
     		btn.Text = name
     		btn.TextXAlignment = Enum.TextXAlignment.Left
     		btn.Parent = scrollingFR
     		-- Aplicar estilo se já estiver selecionado
     		if selected[name] then
-    			btn.BackgroundTransparency = 0.7  -- Mais transparente quando selecionado
+    			btn.BackgroundTransparency = 0.7
     			btn.Text = "✅ " .. name
     		end
     		btn.MouseButton1Click:Connect(function()
@@ -1782,9 +1811,8 @@ local function LocalScript_3_generatedScript()
     				btn.BackgroundTransparency = 0.7
     				btn.Text = "✅ " .. name
     			end
-    			-- Atualizar contador
-    			local count = 0
-    			for _ in pairs(selected) do count = count + 1 end
+    			-- Atualizar contador corrigido
+    			local count = getSelectedCount()
     			confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
     		end)
     		y = y + 32
@@ -1827,6 +1855,12 @@ local function LocalScript_3_generatedScript()
     		btnX.MouseButton1Click:Connect(function()
     			-- Remover da seleção
     			selected[name] = nil
+    			-- Parar o script se estava ativo e não há mais itens
+    			local newCount = getSelectedCount()
+    			if AUTO_ACTIVATE and newCount == 0 then
+    				AUTO_ACTIVATE = false
+    				stopScript()
+    			end
     			-- Salvar a nova seleção
     			saveSelectedNames()
     			-- Atualizar a lista visual
@@ -1835,17 +1869,9 @@ local function LocalScript_3_generatedScript()
     			updateTargetNames()
     			-- Atualizar aparência do botão de auto-compra
     			updateButtonAppearance()
-    			-- Se auto-compra estiver ativo e não há mais itens, desativar
-    			if AUTO_ACTIVATE and #targetNames == 0 then
-    				AUTO_ACTIVATE = false
-    				stopScript()
-    				updateButtonAppearance()
-    			end
     			-- Atualizar contador do botão principal
-    			local count = 0
-    			for _ in pairs(selected) do count = count + 1 end
-    			if count > 0 then
-    				toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
+    			if newCount > 0 then
+    				toggleBtn.Text = "🎯 SELECIONADOS (" .. newCount .. ")"
     				toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
     			else
     				toggleBtn.Text = "🎯 SELECIONAR ITENS"
@@ -1868,8 +1894,7 @@ local function LocalScript_3_generatedScript()
     		confirmBtn.Visible = false
     		showElementsAfterSelection()
     		-- Mostrar elementos se houver itens selecionados
-    		local count = 0
-    		for _ in pairs(selected) do count = count + 1 end
+    		local count = getSelectedCount()
     		if count > 0 then
     			listFR.Visible = true
     			titleLabel.Visible = true
@@ -1888,11 +1913,13 @@ local function LocalScript_3_generatedScript()
     		toggleBtn.Text = "❌ FECHAR SELETOR"
     		toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
     		populateScrolling()
+    		-- Atualizar contador do confirmBtn quando abre
+    		local count = getSelectedCount()
+    		confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
     	end
     end)
     confirmBtn.MouseButton1Click:Connect(function()
-    	local count = 0
-    	for _ in pairs(selected) do count = count + 1 end
+    	local count = getSelectedCount()
     	if count == 0 then
     		confirmBtn.Text = "⚠️ SELECIONE PELO MENOS 1!"
     		confirmBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
@@ -1933,8 +1960,7 @@ local function LocalScript_3_generatedScript()
     setupCommunicationSystem()
     loadSavedSelection()
     updateAvailableNames()
-    local count = 0
-    for _ in pairs(selected) do count = count + 1 end
+    local count = getSelectedCount()
     if count > 0 then
     	toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
     	toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
