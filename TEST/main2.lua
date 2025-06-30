@@ -65,6 +65,8 @@ local AUTO_ACTIVATE = false
 local SCRIPT_ACTIVE = false
 local MAX_DISTANCE = 15
 local ACTIVATION_DELAY = 0.1
+local SYSTEM_LOADED = false
+local LOADING_COMPLETE = false
 
 local trackedPrompts = {}
 local lastActivation = {}
@@ -84,6 +86,23 @@ local autoBuyBtn = container:WaitForChild("ToggleBT")
 local scrollingFR = container:WaitForChild("ScrollingFrame")
 local listFR = container:WaitForChild("ListFR")
 local inf = container:WaitForChild('TextLabel')
+
+-- Criar indicador de carregamento
+local loadingLabel = container:FindFirstChild("LoadingLabel")
+if not loadingLabel then
+	loadingLabel = Instance.new("TextLabel")
+	loadingLabel.Name = "LoadingLabel"
+	loadingLabel.Size = UDim2.new(1, 0, 0, 30)
+	loadingLabel.Position = UDim2.new(0, 0, 0, 320)
+	loadingLabel.BackgroundTransparency = 1
+	loadingLabel.Font = Enum.Font.Arcade
+	loadingLabel.TextSize = 12
+	loadingLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+	loadingLabel.Text = "🔄 CARREGANDO SISTEMA..."
+	loadingLabel.TextXAlignment = Enum.TextXAlignment.Center
+	loadingLabel.Visible = true
+	loadingLabel.Parent = container
+end
 
 -- Criar botão de confirmar se não existir
 local confirmBtn = container:FindFirstChild("ConfirmBtn")
@@ -117,6 +136,17 @@ if not titleLabel then
 	titleLabel.Parent = container
 end
 
+-- Função para mostrar loading
+local function showLoading(text)
+	loadingLabel.Text = text or "🔄 CARREGANDO..."
+	loadingLabel.Visible = true
+end
+
+-- Função para esconder loading
+local function hideLoading()
+	loadingLabel.Visible = false
+end
+
 -- Função CORRIGIDA para descobrir nomes disponíveis (APENAS da lista fixa)
 local function scanForAvailableNames()
 	local foundNames = {}
@@ -133,11 +163,15 @@ end
 
 -- Atualizar lista de nomes disponíveis
 local function updateAvailableNames()
+	showLoading("🔍 CARREGANDO BRAINROTS...")
+	wait(0.5) -- Simular carregamento
 	availableNames = scanForAvailableNames()
 	print("Carregados " .. #availableNames .. " nomes brainrot da lista fixa")
 end
 
 local function setupCommunicationSystem()
+	showLoading("⚙️ CONFIGURANDO SISTEMA...")
+	
 	brainrotFolder = ReplicatedStorage:FindFirstChild("BrainrotSystem")
 	if not brainrotFolder then
 		brainrotFolder = Instance.new("Folder")
@@ -152,10 +186,13 @@ local function setupCommunicationSystem()
 		selectedNamesValue.Value = ""
 		selectedNamesValue.Parent = brainrotFolder
 	end
+	
+	wait(0.3) -- Aguardar estabilização
 end
 
+-- Função CORRIGIDA para salvar nomes selecionados
 local function saveSelectedNames()
-	if not selectedNamesValue then return end
+	if not selectedNamesValue or not SYSTEM_LOADED then return end
 
 	local selectedList = {}
 	for name in pairs(selected) do
@@ -165,8 +202,12 @@ local function saveSelectedNames()
 	local joinedNames = table.concat(selectedList, "|||")
 	selectedNamesValue.Value = joinedNames
 
+	-- Aguardar sincronização
 	wait(0.1)
 	selectedNamesValue.Value = joinedNames
+	
+	-- Atualizar imediatamente os nomes alvo
+	updateTargetNames()
 end
 
 local function loadSavedSelection()
@@ -232,7 +273,10 @@ local function loadSelectedNames()
 	return validNames
 end
 
+-- Função CORRIGIDA para atualizar nomes alvo
 local function updateTargetNames()
+	if not SYSTEM_LOADED then return end
+	
 	local newNames = loadSelectedNames()
 	targetNames = newNames
 
@@ -243,11 +287,16 @@ local function updateTargetNames()
 			lower = name:lower()
 		}
 	end
+	
+	print("Target names atualizados: " .. #targetNames)
 end
 
+-- Função CORRIGIDA para atualizar aparência do botão
 local function updateButtonAppearance()
+	if not LOADING_COMPLETE then return end
+	
 	local count = #targetNames
-	if AUTO_ACTIVATE then
+	if AUTO_ACTIVATE and count > 0 then
 		autoBuyBtn.Text = " "
 		autoBuyBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 		autoBuyBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -262,7 +311,7 @@ local function setupChangeMonitoring()
 	if not selectedNamesValue then return end
 
 	selectedNamesValue.Changed:Connect(function(newValue)
-		if newValue ~= lastKnownValue then
+		if newValue ~= lastKnownValue and SYSTEM_LOADED then
 			lastKnownValue = newValue
 			wait(0.1)
 			updateTargetNames()
@@ -272,7 +321,7 @@ local function setupChangeMonitoring()
 end
 
 local function isTargetPrompt(prompt)
-	if not prompt or not prompt.ObjectText then return false end
+	if not prompt or not prompt.ObjectText or not SYSTEM_LOADED then return false end
 
 	local objectText = prompt.ObjectText
 	if objectText == "" then return false end
@@ -292,7 +341,7 @@ local function isTargetPrompt(prompt)
 end
 
 local function activateProximityPrompt(prompt)
-	if not prompt or not prompt.Parent or not AUTO_ACTIVATE then return end
+	if not prompt or not prompt.Parent or not AUTO_ACTIVATE or not SYSTEM_LOADED then return end
 
 	local promptId = tostring(prompt)
 	local currentTime = tick()
@@ -366,7 +415,7 @@ local function getModelPosition(promptParent)
 end
 
 local function processPromptsQueue()
-	if not AUTO_ACTIVATE then return end
+	if not AUTO_ACTIVATE or not SYSTEM_LOADED then return end
 
 	local processed = 0
 	local maxPerFrame = 5
@@ -403,7 +452,7 @@ local function processPromptsQueue()
 end
 
 local function scanExistingPrompts()
-	if not AUTO_ACTIVATE or not character or not humanoidRootPart then
+	if not AUTO_ACTIVATE or not character or not humanoidRootPart or not SYSTEM_LOADED then
 		return
 	end
 
@@ -425,11 +474,11 @@ local function scanExistingPrompts()
 end
 
 local function startScript()
-	if SCRIPT_ACTIVE then return end
+	if SCRIPT_ACTIVE or not SYSTEM_LOADED then return end
 	SCRIPT_ACTIVE = true
 
 	connections[#connections + 1] = ProximityPromptService.PromptShown:Connect(function(prompt, inputType)
-		if not AUTO_ACTIVATE then return end
+		if not AUTO_ACTIVATE or not SYSTEM_LOADED then return end
 
 		local isTarget, foundName = isTargetPrompt(prompt)
 
@@ -449,7 +498,7 @@ local function startScript()
 	local lastCleanup = 0
 
 	connections[#connections + 1] = RunService.Heartbeat:Connect(function()
-		if not AUTO_ACTIVATE then return end
+		if not AUTO_ACTIVATE or not SYSTEM_LOADED then return end
 
 		local currentTime = tick()
 
@@ -506,15 +555,24 @@ local function stopScript()
 	scanQueue = {}
 end
 
+-- Função CORRIGIDA para toggle do script
 local function toggleScript()
+	if not LOADING_COMPLETE then 
+		showLoading("⚠️ AGUARDE O CARREGAMENTO!")
+		wait(1)
+		hideLoading()
+		return 
+	end
+
+	-- Verificar se há itens selecionados
 	if not AUTO_ACTIVATE and #targetNames == 0 then
 		return
 	end
 
 	AUTO_ACTIVATE = not AUTO_ACTIVATE
-	updateButtonAppearance()
-
+	
 	if AUTO_ACTIVATE then
+		-- Atualizar nomes antes de ativar
 		updateTargetNames()
 		if #targetNames == 0 then
 			AUTO_ACTIVATE = false
@@ -525,10 +583,13 @@ local function toggleScript()
 	else
 		stopScript()
 	end
+	
+	updateButtonAppearance()
 end
 
 -- Função para esconder/mostrar elementos quando o ScrollingFrame abre/fecha
 local function hideElementsForSelection()
+	if not LOADING_COMPLETE then return end
 	autoBuyBtn.Visible = false
 	listFR.Visible = false
 	titleLabel.Visible = false
@@ -536,13 +597,15 @@ local function hideElementsForSelection()
 end
 
 local function showElementsAfterSelection()
+	if not LOADING_COMPLETE then return end
 	autoBuyBtn.Visible = true
 	inf.Visible = true
-	-- listFR e titleLabel serão mostrados conforme necessário na função refreshList
 end
 
 -- Função corrigida para popular o scrolling com seu estilo visual
 local function populateScrolling()
+	if not LOADING_COMPLETE then return end
+	
 	-- Limpar botões existentes
 	for _, child in pairs(scrollingFR:GetChildren()) do
 		if child:IsA("TextButton") then
@@ -554,25 +617,27 @@ local function populateScrolling()
 	for _, name in ipairs(availableNames) do
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0, 280, 0, 28)  -- Usando seu tamanho
+		btn.Size = UDim2.new(0, 280, 0, 28)
 		btn.Position = UDim2.new(0, 0, 0, y)
-		btn.BackgroundColor3 = Color3.new(0, 0, 0)  -- Cor preta como no seu código
-		btn.BackgroundTransparency = 0.35  -- Transparência padrão
+		btn.BackgroundColor3 = Color3.new(0, 0, 0)
+		btn.BackgroundTransparency = 0.35
 		btn.BorderSizePixel = 0
 		btn.Font = Enum.Font.Arcade
-		btn.TextSize = 14  -- Tamanho do seu código
-		btn.TextColor3 = Color3.new(1, 1, 1)  -- Branco
+		btn.TextSize = 14
+		btn.TextColor3 = Color3.new(1, 1, 1)
 		btn.Text = name
 		btn.TextXAlignment = Enum.TextXAlignment.Left
 		btn.Parent = scrollingFR
 
 		-- Aplicar estilo se já estiver selecionado
 		if selected[name] then
-			btn.BackgroundTransparency = 0.7  -- Mais transparente quando selecionado
+			btn.BackgroundTransparency = 0.7
 			btn.Text = "✅ " .. name
 		end
 
 		btn.MouseButton1Click:Connect(function()
+			if not LOADING_COMPLETE then return end
+			
 			-- Alterna seleção usando seu estilo
 			if selected[name] then
 				selected[name] = nil
@@ -595,8 +660,10 @@ local function populateScrolling()
 	scrollingFR.CanvasSize = UDim2.new(0, 0, 0, y)
 end
 
--- Função CORRIGIDA para atualizar a lista e o sistema de auto-compra
+-- Função CORRIGIDA para atualizar a lista
 local function refreshList()
+	if not LOADING_COMPLETE then return end
+	
 	for _, child in pairs(listFR:GetChildren()) do
 		if child:IsA("Frame") then
 			child:Destroy()
@@ -636,24 +703,20 @@ local function refreshList()
 			-- Remover da seleção
 			selected[name] = nil
 
-			-- Salvar a nova seleção
+			-- Forçar desativação do auto-buy se estava ativo
+			if AUTO_ACTIVATE then
+				AUTO_ACTIVATE = false
+				stopScript()
+			end
+
+			-- Salvar a nova seleção (isso vai atualizar targetNames automaticamente)
 			saveSelectedNames()
 
 			-- Atualizar a lista visual
 			refreshList()
 
-			-- Atualizar os nomes alvo para o auto-compra
-			updateTargetNames()
-
 			-- Atualizar aparência do botão de auto-compra
 			updateButtonAppearance()
-
-			-- Se auto-compra estiver ativo e não há mais itens, desativar
-			if AUTO_ACTIVATE and #targetNames == 0 then
-				AUTO_ACTIVATE = false
-				stopScript()
-				updateButtonAppearance()
-			end
 
 			-- Atualizar contador do botão principal
 			local count = 0
@@ -680,6 +743,13 @@ end
 
 -- Conectar eventos dos botões
 toggleBtn.MouseButton1Click:Connect(function()
+	if not LOADING_COMPLETE then
+		showLoading("⚠️ SISTEMA AINDA CARREGANDO!")
+		wait(1)
+		hideLoading()
+		return
+	end
+	
 	if scrollingFR.Visible then
 		-- Fechar o seletor
 		scrollingFR.Visible = false
@@ -701,7 +771,6 @@ toggleBtn.MouseButton1Click:Connect(function()
 		end
 	else
 		-- Abrir o seletor
-		updateAvailableNames()
 		hideElementsForSelection()
 
 		scrollingFR.Visible = true
@@ -713,6 +782,8 @@ toggleBtn.MouseButton1Click:Connect(function()
 end)
 
 confirmBtn.MouseButton1Click:Connect(function()
+	if not LOADING_COMPLETE then return end
+	
 	local count = 0
 	for _ in pairs(selected) do count = count + 1 end
 
@@ -723,6 +794,12 @@ confirmBtn.MouseButton1Click:Connect(function()
 		confirmBtn.Text = "CONFIRMAR (0)"
 		confirmBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
 		return
+	end
+
+	-- Forçar desativação do auto-buy antes de salvar
+	if AUTO_ACTIVATE then
+		AUTO_ACTIVATE = false
+		stopScript()
 	end
 
 	saveSelectedNames()
@@ -736,7 +813,6 @@ confirmBtn.MouseButton1Click:Connect(function()
 	toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
 
 	refreshList()
-	updateTargetNames()
 	updateButtonAppearance()
 end)
 
@@ -749,7 +825,9 @@ local function onCharacterAdded(newCharacter)
 	if AUTO_ACTIVATE then
 		stopScript()
 		wait(1)
-		startScript()
+		if SYSTEM_LOADED then
+			startScript()
+		end
 	end
 end
 
@@ -761,28 +839,76 @@ game.Players.PlayerRemoving:Connect(function(leavingPlayer)
 	end
 end)
 
--- Inicialização
-setupCommunicationSystem()
-loadSavedSelection()
-updateAvailableNames()
-
-local count = 0
-for _ in pairs(selected) do count = count + 1 end
-if count > 0 then
-	toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
-	toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
-	confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
+-- Função de inicialização completa
+local function initializeSystem()
+	showLoading("🔧 INICIANDO SISTEMA...")
+	
+	-- Desabilitar todos os botões durante o carregamento
+	toggleBtn.Visible = false
+	autoBuyBtn.Visible = false
+	
+	wait(0.5)
+	
+	-- Passo 1: Configurar sistema de comunicação
+	setupCommunicationSystem()
+	wait(0.3)
+	
+	-- Passo 2: Carregar nomes disponíveis
+	updateAvailableNames()
+	wait(0.3)
+	
+	-- Passo 3: Carregar seleção salva
+	showLoading("💾 CARREGANDO SELEÇÕES...")
+	loadSavedSelection()
+	wait(0.3)
+	
+	-- Passo 4: Atualizar nomes alvo
+	showLoading("🎯 CONFIGURANDO ALVOS...")
+	SYSTEM_LOADED = true
+	updateTargetNames()
+	wait(0.3)
+	
+	-- Passo 5: Configurar monitoramento
+	showLoading("🔍 CONFIGURANDO MONITORAMENTO...")
+	setupChangeMonitoring()
+	wait(0.3)
+	
+	-- Passo 6: Finalizar
+	showLoading("✅ FINALIZANDO...")
+	wait(0.5)
+	
+	-- Sistema carregado
+	LOADING_COMPLETE = true
+	hideLoading()
+	
+	-- Mostrar botões
+	toggleBtn.Visible = true
+	autoBuyBtn.Visible = true
+	
+	-- Configurar interface inicial
+	local count = 0
+	for _ in pairs(selected) do count = count + 1 end
+	
+	if count > 0 then
+		toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
+		toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+		confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
+		listFR.Visible = true
+		titleLabel.Visible = true
+		refreshList()
+	else
+		toggleBtn.Text = "🎯 SELECIONAR ITENS"
+		toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	end
+	
+	updateButtonAppearance()
+	
+	print("✅ Sistema Brainrot carregado com sucesso!")
+	print("📊 Nomes disponíveis: " .. #availableNames)
+	print("🎯 Itens selecionados: " .. count)
 end
 
-updateTargetNames()
-updateButtonAppearance()
-setupChangeMonitoring()
-
--- Escaneamento inicial após um delay
+-- Inicialização
 coroutine.wrap(function()
-	wait(2)
-	updateAvailableNames()
-	if AUTO_ACTIVATE then
-		scanExistingPrompts()
-	end
+	initializeSystem()
 end)()
