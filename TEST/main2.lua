@@ -1367,6 +1367,10 @@ local function LocalScript_3_generatedScript()
     local brainrotFolder = nil
     local selectedNamesValue = nil
     local lastKnownValue = ""
+    -- Variáveis de otimização
+    local isUpdatingUI = false
+    local lastUIUpdate = 0
+    local UI_UPDATE_COOLDOWN = 0.1
     -- Referências aos elementos da UI
     local toggleBtn = container:WaitForChild("Toggle")
     local autoBuyBtn = container:WaitForChild("ToggleBT") 
@@ -1405,15 +1409,15 @@ local function LocalScript_3_generatedScript()
     	titleLabel.Visible = false
     	titleLabel.Parent = container
     end
-    -- Função para atualizar toggle visual (corrigida)
+    -- Função para atualizar toggle visual (otimizada)
     local function updateToggleVisual()
     	if not boll then return end
     	local tweenService = game:GetService("TweenService")
-    	local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+    	local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
     	local offPosition = UDim2.new(0.02, 0, 0.018, 0)
     	local onPosition = UDim2.new(0.55, 0, 0, 0)
-    	local offColor = Color3.fromRGB(255, 0, 0)      -- Vermelho (OFF)
-    	local onColor = Color3.fromRGB(0, 255, 0)       -- Verde (ON)
+    	local offColor = Color3.fromRGB(255, 0, 0)
+    	local onColor = Color3.fromRGB(0, 255, 0)
     	local targetPosition = AUTO_ACTIVATE and onPosition or offPosition
     	local targetColor = AUTO_ACTIVATE and onColor or offColor
     	local moveTween = tweenService:Create(boll, tweenInfo, {Position = targetPosition})
@@ -1421,21 +1425,16 @@ local function LocalScript_3_generatedScript()
     	moveTween:Play()
     	colorTween:Play()
     end
-    -- Função CORRIGIDA para descobrir nomes disponíveis (APENAS da lista fixa)
+    -- Função otimizada para descobrir nomes disponíveis
     local function scanForAvailableNames()
-    	local foundNames = {}
-    	-- Adicionar APENAS os nomes brainrot da lista fixa
-    	for _, name in ipairs(brainrotNames) do
-    		table.insert(foundNames, name)
-    	end
-    	-- Ordenar alfabeticamente
-    	table.sort(foundNames)
-    	return foundNames
+    	return brainrotNames -- Retorna diretamente a lista fixa (já está ordenada)
     end
-    -- Atualizar lista de nomes disponíveis
+    -- Atualizar lista de nomes disponíveis (otimizada)
     local function updateAvailableNames()
-    	availableNames = scanForAvailableNames()
-    	print("Carregados " .. #availableNames .. " nomes brainrot da lista fixa")
+    	if #availableNames == 0 then -- Só carrega uma vez
+    		availableNames = scanForAvailableNames()
+    		print("Carregados " .. #availableNames .. " nomes brainrot da lista fixa")
+    	end
     end
     local function setupCommunicationSystem()
     	brainrotFolder = ReplicatedStorage:FindFirstChild("BrainrotSystem")
@@ -1452,7 +1451,7 @@ local function LocalScript_3_generatedScript()
     		selectedNamesValue.Parent = brainrotFolder
     	end
     end
-    -- Função corrigida para salvar nomes selecionados
+    -- Função otimizada para salvar nomes selecionados
     local function saveSelectedNames()
     	if not selectedNamesValue then return end
     	local selectedList = {}
@@ -1461,12 +1460,11 @@ local function LocalScript_3_generatedScript()
     	end
     	local joinedNames = table.concat(selectedList, "|||")
     	selectedNamesValue.Value = joinedNames
-    	-- Aguardar um pouco e confirmar o salvamento
-    	wait(0.1)
-    	selectedNamesValue.Value = joinedNames
-    	-- Limpar cache de processamento quando a seleção muda
+    	-- Limpar cache quando a seleção muda
     	processedPrompts = {}
     	lastActivation = {}
+    	-- *** FIX CRÍTICO: Atualizar nomes alvo imediatamente ***
+    	updateTargetNames()
     end
     local function loadSavedSelection()
     	if not selectedNamesValue then return end
@@ -1482,19 +1480,19 @@ local function LocalScript_3_generatedScript()
     end
     local function waitForCommunicationSystem()
     	local attempts = 0
-    	while attempts < 50 do
+    	while attempts < 30 do -- Reduzido de 50 para 30
     		brainrotFolder = ReplicatedStorage:FindFirstChild("BrainrotSystem")
     		if brainrotFolder then break end
     		attempts = attempts + 1
-    		wait(0.2)
+    		wait(0.1) -- Reduzido de 0.2 para 0.1
     	end
     	if not brainrotFolder then return false end
     	attempts = 0
-    	while attempts < 25 do
+    	while attempts < 15 do -- Reduzido de 25 para 15
     		selectedNamesValue = brainrotFolder:FindFirstChild("SelectedNames")
     		if selectedNamesValue then break end
     		attempts = attempts + 1
-    		wait(0.2)
+    		wait(0.1) -- Reduzido de 0.2 para 0.1
     	end
     	return selectedNamesValue ~= nil
     end
@@ -1518,10 +1516,11 @@ local function LocalScript_3_generatedScript()
     	lastKnownValue = currentValue
     	return validNames
     end
-    -- Função corrigida para atualizar nomes alvo
+    -- *** FUNÇÃO CRÍTICA CORRIGIDA: Atualizar nomes alvo ***
     local function updateTargetNames()
     	local newNames = loadSelectedNames()
     	targetNames = newNames
+    	-- Reconstruir cache de nomes
     	targetNamesCache = {}
     	for i, name in pairs(targetNames) do
     		targetNamesCache[i] = {
@@ -1529,36 +1528,51 @@ local function LocalScript_3_generatedScript()
     			lower = name:lower()
     		}
     	end
+    	-- *** FIX: Se não há nomes selecionados, desativar auto-compra ***
+    	if #targetNames == 0 and AUTO_ACTIVATE then
+    		AUTO_ACTIVATE = false
+    		stopScript()
+    		updateToggleVisual()
+    		print("Auto-compra desativada: nenhum item selecionado")
+    	end
     	-- Limpar prompts processados quando targets mudam
     	processedPrompts = {}
     	lastActivation = {}
+    	print("Nomes alvo atualizados:", #targetNames, "itens")
     end
-    -- Função corrigida para aparência do botão
+    -- Função otimizada para aparência do botão
     local function updateButtonAppearance()
-    	local count = #targetNames
-    	updateToggleVisual() -- Usar a função do toggle visual
+    	local currentTime = tick()
+    	if currentTime - lastUIUpdate < UI_UPDATE_COOLDOWN then
+    		return -- Evita atualizações muito frequentes
+    	end
+    	lastUIUpdate = currentTime
+    	updateToggleVisual()
     end
     local function setupChangeMonitoring()
     	if not selectedNamesValue then return end
     	selectedNamesValue.Changed:Connect(function(newValue)
     		if newValue ~= lastKnownValue then
     			lastKnownValue = newValue
-    			wait(0.1)
-    			updateTargetNames()
-    			updateButtonAppearance()
+    			coroutine.wrap(function()
+    				wait(0.05) -- Reduzido delay
+    				updateTargetNames()
+    				updateButtonAppearance()
+    			end)()
     		end
     	end)
     end
+    -- Função otimizada para verificar se é prompt alvo
     local function isTargetPrompt(prompt)
-    	if not prompt or not prompt.ObjectText then return false end
+    	if not prompt or not prompt.ObjectText or #targetNamesCache == 0 then 
+    		return false 
+    	end
     	local objectText = prompt.ObjectText
     	if objectText == "" then return false end
     	local objectTextLower = objectText:lower()
     	for _, nameData in pairs(targetNamesCache) do
-    		if objectText:find(nameData.original, 1, true) then
-    			return true, nameData.original
-    		end
-    		if objectTextLower:find(nameData.lower, 1, true) then
+    		if objectText:find(nameData.original, 1, true) or 
+    			objectTextLower:find(nameData.lower, 1, true) then
     			return true, nameData.original
     		end
     	end
@@ -1597,7 +1611,7 @@ local function LocalScript_3_generatedScript()
     local function getModelPosition(promptParent)
     	local cacheKey = tostring(promptParent)
     	local currentTime = tick()
-    	if positionCache[cacheKey] and currentTime - positionCache[cacheKey].time < 0.5 then
+    	if positionCache[cacheKey] and currentTime - positionCache[cacheKey].time < 0.3 then
     		return positionCache[cacheKey].position
     	end
     	local position = nil
@@ -1609,7 +1623,7 @@ local function LocalScript_3_generatedScript()
     		position = promptParent.PrimaryPart.Position
     	else
     		for i, child in pairs(promptParent:GetChildren()) do
-    			if i > 10 then break end
+    			if i > 5 then break end -- Reduzido de 10 para 5
     			if child:IsA("BasePart") then
     				position = child.Position
     				break
@@ -1624,16 +1638,17 @@ local function LocalScript_3_generatedScript()
     	end
     	return position
     end
+    -- Função otimizada para processar fila de prompts
     local function processPromptsQueue()
-    	if not AUTO_ACTIVATE then return end
+    	if not AUTO_ACTIVATE or #targetNames == 0 then return end
     	local processed = 0
-    	local maxPerFrame = 5
+    	local maxPerFrame = 3 -- Reduzido de 5 para 3
     	while #scanQueue > 0 and processed < maxPerFrame do
     		local prompt = table.remove(scanQueue, 1)
     		processed = processed + 1
     		if prompt and prompt.Parent then
     			local promptId = tostring(prompt)
-    			if processedPrompts[promptId] and tick() - processedPrompts[promptId] < 2 then
+    			if processedPrompts[promptId] and tick() - processedPrompts[promptId] < 1.5 then
     				continue
     			end
     			processedPrompts[promptId] = tick()
@@ -1651,33 +1666,39 @@ local function LocalScript_3_generatedScript()
     		end
     	end
     end
+    -- Função otimizada para escanear prompts existentes
     local function scanExistingPrompts()
-    	if not AUTO_ACTIVATE or not character or not humanoidRootPart then
+    	if not AUTO_ACTIVATE or not character or not humanoidRootPart or #targetNames == 0 then
     		return
     	end
     	local playerPosition = humanoidRootPart.Position
+    	local scanned = 0
+    	local maxScan = 50 -- Limite de prompts por scan
     	for _, obj in pairs(workspace:GetDescendants()) do
+    		if scanned >= maxScan then break end
     		if obj:IsA("ProximityPrompt") and obj.Enabled then
     			local modelPosition = getModelPosition(obj.Parent)
     			if modelPosition then
     				local distance = (playerPosition - modelPosition).Magnitude
-    				if distance <= MAX_DISTANCE * 2 then
+    				if distance <= MAX_DISTANCE * 1.5 then -- Reduzido multiplicador
     					table.insert(scanQueue, obj)
+    					scanned = scanned + 1
     				end
     			end
     		end
-    		if #scanQueue > 100 then break end
     	end
     end
     local function startScript()
     	if SCRIPT_ACTIVE then return end
     	SCRIPT_ACTIVE = true
     	connections[#connections + 1] = ProximityPromptService.PromptShown:Connect(function(prompt, inputType)
-    		if not AUTO_ACTIVATE then return end
+    		if not AUTO_ACTIVATE or #targetNames == 0 then return end
     		local isTarget, foundName = isTargetPrompt(prompt)
     		if isTarget then
-    			wait(0.1)
-    			activateProximityPrompt(prompt)
+    			coroutine.wrap(function()
+    				wait(0.05) -- Reduzido delay
+    				activateProximityPrompt(prompt)
+    			end)()
     		end
     	end)
     	connections[#connections + 1] = ProximityPromptService.PromptHidden:Connect(function(prompt, inputType)
@@ -1688,31 +1709,32 @@ local function LocalScript_3_generatedScript()
     	local lastScan = 0
     	local lastCleanup = 0
     	connections[#connections + 1] = RunService.Heartbeat:Connect(function()
-    		if not AUTO_ACTIVATE then return end
+    		if not AUTO_ACTIVATE or #targetNames == 0 then return end
     		local currentTime = tick()
     		if #scanQueue > 0 then
     			processPromptsQueue()
     		end
-    		if currentTime - lastScan >= 3 then
+    		if currentTime - lastScan >= 4 then -- Aumentado de 3 para 4
     			lastScan = currentTime
-    			if #scanQueue < 50 then
+    			if #scanQueue < 30 then -- Reduzido de 50 para 30
     				pcall(scanExistingPrompts)
     			end
     		end
-    		if currentTime - lastCleanup >= 15 then
+    		if currentTime - lastCleanup >= 20 then -- Aumentado de 15 para 20
     			lastCleanup = currentTime
+    			-- Limpeza otimizada
     			for promptId, time in pairs(lastActivation) do
-    				if currentTime - time > 30 then
+    				if currentTime - time > 40 then
     					lastActivation[promptId] = nil
     				end
     			end
     			for promptId, time in pairs(processedPrompts) do
-    				if currentTime - time > 10 then
+    				if currentTime - time > 15 then
     					processedPrompts[promptId] = nil
     				end
     			end
     			for key, data in pairs(positionCache) do
-    				if currentTime - data.time > 2 then
+    				if currentTime - data.time > 3 then
     					positionCache[key] = nil
     				end
     			end
@@ -1735,20 +1757,25 @@ local function LocalScript_3_generatedScript()
     	scanQueue = {}
     end
     local function toggleScript()
+    	-- *** FIX CRÍTICO: Verificar se há nomes alvo atualizados ***
+    	updateTargetNames()
     	if not AUTO_ACTIVATE and #targetNames == 0 then
+    		print("Não é possível ativar: nenhum item selecionado")
     		return
     	end
     	AUTO_ACTIVATE = not AUTO_ACTIVATE
     	updateButtonAppearance()
     	if AUTO_ACTIVATE then
-    		updateTargetNames()
     		if #targetNames == 0 then
     			AUTO_ACTIVATE = false
     			updateButtonAppearance()
+    			print("Auto-compra cancelada: lista vazia")
     			return
     		end
+    		print("Auto-compra ativada para:", #targetNames, "itens")
     		startScript()
     	else
+    		print("Auto-compra desativada")
     		stopScript()
     	end
     end
@@ -1762,9 +1789,8 @@ local function LocalScript_3_generatedScript()
     local function showElementsAfterSelection()
     	autoBuyBtn.Visible = true
     	inf.Visible = true
-    	-- listFR e titleLabel serão mostrados conforme necessário na função refreshList
     end
-    -- Função corrigida para contar selecionados
+    -- Função otimizada para contar selecionados
     local function getSelectedCount()
     	local count = 0
     	for _ in pairs(selected) do 
@@ -1772,8 +1798,10 @@ local function LocalScript_3_generatedScript()
     	end
     	return count
     end
-    -- Função corrigida para popular o scrolling com seu estilo visual
+    -- Função otimizada para popular o scrolling
     local function populateScrolling()
+    	if isUpdatingUI then return end
+    	isUpdatingUI = true
     	-- Limpar botões existentes
     	for _, child in pairs(scrollingFR:GetChildren()) do
     		if child:IsA("TextButton") then
@@ -1801,7 +1829,7 @@ local function LocalScript_3_generatedScript()
     			btn.Text = "✅ " .. name
     		end
     		btn.MouseButton1Click:Connect(function()
-    			-- Alterna seleção usando seu estilo
+    			-- Alterna seleção
     			if selected[name] then
     				selected[name] = nil
     				btn.BackgroundTransparency = 0.35
@@ -1811,16 +1839,19 @@ local function LocalScript_3_generatedScript()
     				btn.BackgroundTransparency = 0.7
     				btn.Text = "✅ " .. name
     			end
-    			-- Atualizar contador corrigido
+    			-- Atualizar contador
     			local count = getSelectedCount()
     			confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
     		end)
     		y = y + 32
     	end
     	scrollingFR.CanvasSize = UDim2.new(0, 0, 0, y)
+    	isUpdatingUI = false
     end
-    -- Função CORRIGIDA para atualizar a lista e o sistema de auto-compra
+    -- *** FUNÇÃO CRÍTICA CORRIGIDA: Atualizar a lista ***
     local function refreshList()
+    	if isUpdatingUI then return end
+    	isUpdatingUI = true
     	for _, child in pairs(listFR:GetChildren()) do
     		if child:IsA("Frame") then
     			child:Destroy()
@@ -1853,38 +1884,41 @@ local function LocalScript_3_generatedScript()
     		btnX.BackgroundTransparency = 1
     		btnX.Parent = entry
     		btnX.MouseButton1Click:Connect(function()
-    			-- Remover da seleção
+    			-- *** FIX CRÍTICO: Remover da seleção e atualizar tudo ***
     			selected[name] = nil
-    			-- Parar o script se estava ativo e não há mais itens
+    			-- Salvar imediatamente (que já chama updateTargetNames)
+    			saveSelectedNames()
+    			-- Verificar se deve parar o script
     			local newCount = getSelectedCount()
     			if AUTO_ACTIVATE and newCount == 0 then
     				AUTO_ACTIVATE = false
     				stopScript()
+    				updateToggleVisual()
+    				print("Auto-compra desativada: lista vazia")
     			end
-    			-- Salvar a nova seleção
-    			saveSelectedNames()
-    			-- Atualizar a lista visual
-    			refreshList()
-    			-- Atualizar os nomes alvo para o auto-compra
-    			updateTargetNames()
-    			-- Atualizar aparência do botão de auto-compra
-    			updateButtonAppearance()
-    			-- Atualizar contador do botão principal
-    			if newCount > 0 then
-    				toggleBtn.Text = "🎯 SELECIONADOS (" .. newCount .. ")"
-    				toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
-    			else
-    				toggleBtn.Text = "🎯 SELECIONAR ITENS"
-    				toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    				listFR.Visible = false
-    				titleLabel.Visible = false
-    			end
+    			-- Atualizar UI
+    			coroutine.wrap(function()
+    				wait(0.01)
+    				refreshList()
+    				updateButtonAppearance()
+    				-- Atualizar contador do botão principal
+    				if newCount > 0 then
+    					toggleBtn.Text = "🎯 SELECIONADOS (" .. newCount .. ")"
+    					toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+    				else
+    					toggleBtn.Text = "🎯 SELECIONAR ITENS"
+    					toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    					listFR.Visible = false
+    					titleLabel.Visible = false
+    				end
+    			end)()
     		end)
     		y = y + 32
     	end
     	if listFR:IsA("ScrollingFrame") then
     		listFR.CanvasSize = UDim2.new(0, 0, 0, y)
     	end
+    	isUpdatingUI = false
     end
     -- Conectar eventos dos botões
     toggleBtn.MouseButton1Click:Connect(function()
@@ -1912,10 +1946,12 @@ local function LocalScript_3_generatedScript()
     		confirmBtn.Visible = true
     		toggleBtn.Text = "❌ FECHAR SELETOR"
     		toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-    		populateScrolling()
-    		-- Atualizar contador do confirmBtn quando abre
-    		local count = getSelectedCount()
-    		confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
+    		coroutine.wrap(function()
+    			populateScrolling()
+    			-- Atualizar contador do confirmBtn quando abre
+    			local count = getSelectedCount()
+    			confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
+    		end)()
     	end
     end)
     confirmBtn.MouseButton1Click:Connect(function()
@@ -1923,11 +1959,14 @@ local function LocalScript_3_generatedScript()
     	if count == 0 then
     		confirmBtn.Text = "⚠️ SELECIONE PELO MENOS 1!"
     		confirmBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
-    		wait(2)
-    		confirmBtn.Text = "CONFIRMAR (0)"
-    		confirmBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    		coroutine.wrap(function()
+    			wait(2)
+    			confirmBtn.Text = "CONFIRMAR (0)"
+    			confirmBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    		end)()
     		return
     	end
+    	-- *** FIX: Salvar e atualizar tudo ***
     	saveSelectedNames()
     	scrollingFR.Visible = false
     	confirmBtn.Visible = false
@@ -1936,9 +1975,10 @@ local function LocalScript_3_generatedScript()
     	listFR.Visible = true
     	toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
     	toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
-    	refreshList()
-    	updateTargetNames()
-    	updateButtonAppearance()
+    	coroutine.wrap(function()
+    		refreshList()
+    		updateButtonAppearance()
+    	end)()
     end)
     autoBuyBtn.MouseButton1Click:Connect(toggleScript)
     local function onCharacterAdded(newCharacter)
@@ -1946,8 +1986,10 @@ local function LocalScript_3_generatedScript()
     	humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     	if AUTO_ACTIVATE then
     		stopScript()
-    		wait(1)
-    		startScript()
+    		coroutine.wrap(function()
+    			wait(1)
+    			startScript()
+    		end)()
     	end
     end
     player.CharacterAdded:Connect(onCharacterAdded)
@@ -1956,26 +1998,26 @@ local function LocalScript_3_generatedScript()
     		stopScript()
     	end
     end)
-    -- Inicialização
-    setupCommunicationSystem()
-    loadSavedSelection()
-    updateAvailableNames()
-    local count = getSelectedCount()
-    if count > 0 then
-    	toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
-    	toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
-    	confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
-    end
-    updateTargetNames()
-    updateButtonAppearance()
-    setupChangeMonitoring()
-    -- Escaneamento inicial após um delay
+    -- *** INICIALIZAÇÃO OTIMIZADA ***
     coroutine.wrap(function()
-    	wait(2)
+    	setupCommunicationSystem()
+    	loadSavedSelection()
     	updateAvailableNames()
-    	if AUTO_ACTIVATE then
+    	local count = getSelectedCount()
+    	if count > 0 then
+    		toggleBtn.Text = "🎯 SELECIONADOS (" .. count .. ")"
+    		toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+    		confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
+    	end
+    	updateTargetNames()
+    	updateButtonAppearance()
+    	setupChangeMonitoring()
+    	-- Escaneamento inicial após delay
+    	wait(2)
+    	if AUTO_ACTIVATE and #targetNames > 0 then
     		scanExistingPrompts()
     	end
+    	print("Sistema brainrot inicializado com sucesso!")
     end)()
 end
 task.spawn(LocalScript_3_generatedScript)
