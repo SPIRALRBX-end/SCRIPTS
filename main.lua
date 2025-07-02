@@ -600,7 +600,7 @@ local function LocalScript_generatedScript()
     local mainFrame = screenGui:WaitForChild("MainFR")
     local customFrame = screenGui:WaitForChild("CustomFR")
     local miscFrame = screenGui:WaitForChild("MiscFR")
-    -- Função para mostrar um frame e esconder os outros
+    -- FunÃ§Ã£o para mostrar um frame e esconder os outros
     local function showOnly(targetFrame)
     	mainFrame.Visible = false
     	customFrame.Visible = false
@@ -609,7 +609,7 @@ local function LocalScript_generatedScript()
     end
     -- Inicial: mostra MainFR
     showOnly(mainFrame)
-    -- Conectar botões
+    -- Conectar botÃµes
     mainButton.MouseButton1Click:Connect(function()
     	showOnly(mainFrame)
     end)
@@ -696,7 +696,7 @@ local function LocalScript_1_generatedScript()
     			local namesList = loadstring_func(code)()
     			return namesList
     		else
-    			error("Loadstring não disponível")
+    			error("Loadstring nÃ£o disponÃ­vel")
     		end
     	end)
     	if success and result and type(result) == "table" then
@@ -711,7 +711,6 @@ local function LocalScript_1_generatedScript()
     		return true
     	else
     		targetNames = {
-    			"Tung Tung Tung Sahur",
     			"Cocofanto Elefanto",
     			"Tralalero Tralala", 
     			"Odin Din Din Dun",
@@ -941,12 +940,12 @@ local function LocalScript_1_generatedScript()
     		stopScript()
     	end
     end)
-    print("=== ?? Brainrot Auto Compra V7 - Botão Integrado ===")
+    print("=== ?? Brainrot Auto Compra V7 - BotÃ£o Integrado ===")
     loadBrainrotNames()
     updateButtonAppearance()
-    print("? Script carregado no botão!")
+    print("? Script carregado no botÃ£o!")
     print("?? Nomes carregados:", #targetNames)
-    print("?? Clique no botão para ativar/desativar")
+    print("?? Clique no botÃ£o para ativar/desativar")
     coroutine.wrap(function()
     	wait(2)
     	if AUTO_ACTIVATE then
@@ -989,9 +988,9 @@ local function LocalScript_2_generatedScript()
     local script = Instance.new('LocalScript')
     script.Name = "LocalScript"
     script.Parent = ToggleBT_1
-    -- Este script vai DENTRO do botão: ScreenGui.Frame.MainFR.BrainrotGodFR.ToggleBT
-    -- Crie um LocalScript dentro do botão e cole este código
-    local toggleButton = script.Parent -- O próprio botão
+    -- Este script vai DENTRO do botÃ£o: ScreenGui.Frame.MainFR.BrainrotGodFR.ToggleBT
+    -- Crie um LocalScript dentro do botÃ£o e cole este cÃ³digo
+    local toggleButton = script.Parent -- O prÃ³prio botÃ£o
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
     local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -1001,8 +1000,8 @@ local function LocalScript_2_generatedScript()
     local player = Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    -- Variáveis de controle
-    local AUTO_ACTIVATE = false -- Começa desativado
+    -- VariÃ¡veis de controle
+    local AUTO_ACTIVATE = false -- ComeÃ§a desativado
     local SCRIPT_ACTIVE = false
     local MAX_DISTANCE = 15
     local ACTIVATION_DELAY = 0.1
@@ -1033,7 +1032,7 @@ local function LocalScript_2_generatedScript()
     			local namesList = loadstring_func(code)()
     			return namesList
     		else
-    			error("Loadstring não disponível")
+    			error("Loadstring nÃ£o disponÃ­vel")
     		end
     	end)
     	if success and result and type(result) == "table" then
@@ -1275,12 +1274,12 @@ local function LocalScript_2_generatedScript()
     		stopScript()
     	end
     end)
-    print("=== ?? Brainrot Auto Compra V7 - Botão Integrado ===")
+    print("=== ?? Brainrot Auto Compra V7 - BotÃ£o Integrado ===")
     loadBrainrotNames()
     updateButtonAppearance()
-    print("? Script carregado no botão!")
+    print("? Script carregado no botÃ£o!")
     print("?? Nomes carregados:", #targetNames)
-    print("?? Clique no botão para ativar/desativar")
+    print("?? Clique no botÃ£o para ativar/desativar")
     coroutine.wrap(function()
     	wait(2)
     	if AUTO_ACTIVATE then
@@ -1293,7 +1292,7 @@ local function LocalScript_3_generatedScript()
     local script = Instance.new('LocalScript')
     script.Name = "LocalScript"
     script.Parent = Frame_1
-    -- Script deve estar dentro do Frame (o frame que contém ScrollingFrame, Toggle, etc.)
+    -- Script deve estar dentro do Frame (o frame que contÃ©m ScrollingFrame, Toggle, etc.)
     local container = script.Parent
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
@@ -1305,10 +1304,10 @@ local function LocalScript_3_generatedScript()
     local player = Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    -- Lista dos nomes brainrot que você quer
+    -- Lista dos nomes brainrot que vocÃª quer
     local brainrotNames = {
     	"Noobini Pizzanini",
-    	"Lirilì Larilà",
+    	"LirilÃ¬ LarilÃ ",
     	"Tim Cheese",
     	"Fluriflura",
     	"Talpa Di Fero",
@@ -1350,7 +1349,7 @@ local function LocalScript_3_generatedScript()
     	"Graipuss Medussi",
     	"La Grande Combinasion"
     }
-    -- Variáveis principais
+    -- VariÃ¡veis principais
     local availableNames = {}
     local selected = {}
     local AUTO_ACTIVATE = false
@@ -1367,15 +1366,15 @@ local function LocalScript_3_generatedScript()
     local brainrotFolder = nil
     local selectedNamesValue = nil
     local lastKnownValue = ""
-    -- NOVA VARIÁVEL PARA CONTROLE DE CARREGAMENTO
+    -- NOVA VARIÃVEL PARA CONTROLE DE CARREGAMENTO
     local SCRIPT_LOADED = false
-    -- Referências aos elementos da UI
+    -- ReferÃªncias aos elementos da UI
     local toggleBtn = container:WaitForChild("Toggle")
     local autoBuyBtn = container:WaitForChild("ToggleBT") 
     local scrollingFR = container:WaitForChild("ScrollingFrame")
     local listFR = container:WaitForChild("ListFR")
     local inf = container:WaitForChild('TextLabel')
-    -- Criar botão de confirmar se não existir
+    -- Criar botÃ£o de confirmar se nÃ£o existir
     local confirmBtn = container:FindFirstChild("ConfirmBtn")
     if not confirmBtn then
     	confirmBtn = Instance.new("TextButton")
@@ -1389,7 +1388,7 @@ local function LocalScript_3_generatedScript()
     	confirmBtn.Visible = false
     	confirmBtn.Parent = container
     end
-    -- Criar título se não existir
+    -- Criar tÃ­tulo se nÃ£o existir
     local titleLabel = container:FindFirstChild("TitleLabel")
     if not titleLabel then
     	titleLabel = Instance.new("TextLabel")
@@ -1405,7 +1404,7 @@ local function LocalScript_3_generatedScript()
     	titleLabel.Visible = false
     	titleLabel.Parent = container
     end
-    -- Função CORRIGIDA para descobrir nomes disponíveis (APENAS da lista fixa)
+    -- FunÃ§Ã£o CORRIGIDA para descobrir nomes disponÃ­veis (APENAS da lista fixa)
     local function scanForAvailableNames()
     	local foundNames = {}
     	-- Adicionar APENAS os nomes brainrot da lista fixa
@@ -1416,7 +1415,7 @@ local function LocalScript_3_generatedScript()
     	table.sort(foundNames)
     	return foundNames
     end
-    -- Atualizar lista de nomes disponíveis
+    -- Atualizar lista de nomes disponÃ­veis
     local function updateAvailableNames()
     	availableNames = scanForAvailableNames()
     	print("Carregados " .. #availableNames .. " nomes brainrot da lista fixa")
@@ -1436,7 +1435,7 @@ local function LocalScript_3_generatedScript()
     		selectedNamesValue.Parent = brainrotFolder
     	end
     end
-    -- FUNÇÃO CORRIGIDA para salvar nomes selecionados
+    -- FUNÃ‡ÃƒO CORRIGIDA para salvar nomes selecionados
     local function saveSelectedNames()
     	if not selectedNamesValue then return end
     	local selectedList = {}
@@ -1447,7 +1446,7 @@ local function LocalScript_3_generatedScript()
     	selectedNamesValue.Value = joinedNames
     	lastKnownValue = joinedNames
     	-- Debug
-    	print("?? Salvando seleção:", #selectedList, "itens")
+    	print("?? Salvando seleÃ§Ã£o:", #selectedList, "itens")
     	for _, name in ipairs(selectedList) do
     		print("  - Salvando:", name)
     	end
@@ -1457,7 +1456,7 @@ local function LocalScript_3_generatedScript()
     	selected = {}
     	if selectedNamesValue.Value ~= "" then
     		local savedNames = string.split(selectedNamesValue.Value, "|||")
-    		print("?? Carregando seleção salva:", #savedNames, "itens")
+    		print("?? Carregando seleÃ§Ã£o salva:", #savedNames, "itens")
     		for _, name in ipairs(savedNames) do
     			if name and name ~= "" then
     				selected[name] = true
@@ -1504,7 +1503,7 @@ local function LocalScript_3_generatedScript()
     	lastKnownValue = currentValue
     	return validNames
     end
-    -- FUNÇÃO TOTALMENTE CORRIGIDA para atualizar nomes alvo
+    -- FUNÃ‡ÃƒO TOTALMENTE CORRIGIDA para atualizar nomes alvo
     local function updateTargetNames()
     	-- Reconstruir targetNames baseado na tabela 'selected' atual
     	targetNames = {}
@@ -1524,14 +1523,14 @@ local function LocalScript_3_generatedScript()
     	for i, name in ipairs(targetNames) do
     		print("  -", name)
     	end
-    	-- CORREÇÃO CRÍTICA: Se não há nomes selecionados, desativar auto-compra
+    	-- CORREÃ‡ÃƒO CRÃTICA: Se nÃ£o hÃ¡ nomes selecionados, desativar auto-compra
     	if #targetNames == 0 and AUTO_ACTIVATE then
     		AUTO_ACTIVATE = false
     		stopScript()
     		print("? Auto-compra desativado: nenhum item selecionado")
     	end
     end
-    -- FUNÇÃO CORRIGIDA para atualizar aparência do botão
+    -- FUNÃ‡ÃƒO CORRIGIDA para atualizar aparÃªncia do botÃ£o
     local function updateButtonAppearance()
     	local count = #targetNames
     	if AUTO_ACTIVATE and count > 0 then
@@ -1544,7 +1543,7 @@ local function LocalScript_3_generatedScript()
     		autoBuyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     	end
     	-- Debug
-    	print("?? Botão atualizado - Auto:", AUTO_ACTIVATE, "Itens:", count)
+    	print("?? BotÃ£o atualizado - Auto:", AUTO_ACTIVATE, "Itens:", count)
     end
     local function setupChangeMonitoring()
     	if not selectedNamesValue then return end
@@ -1744,11 +1743,11 @@ local function LocalScript_3_generatedScript()
     	scanQueue = {}
     	print("? Auto-compra parado")
     end
-    -- FUNÇÃO TOTALMENTE CORRIGIDA para alternar script
+    -- FUNÃ‡ÃƒO TOTALMENTE CORRIGIDA para alternar script
     local function toggleScript()
     	-- Atualizar nomes alvo antes de verificar
     	updateTargetNames()
-    	-- Verificar se há itens selecionados
+    	-- Verificar se hÃ¡ itens selecionados
     	if #targetNames == 0 then
     		print("?? Nenhum item selecionado para auto-compra")
     		AUTO_ACTIVATE = false
@@ -1763,11 +1762,11 @@ local function LocalScript_3_generatedScript()
     		stopScript()
     	end
     end
-    -- FUNÇÃO 100% SINCRONIZADA para atualizar a UI completa
+    -- FUNÃ‡ÃƒO 100% SINCRONIZADA para atualizar a UI completa
     local function updateCompleteUI()
     	local count = 0
     	for _ in pairs(selected) do count = count + 1 end
-    	-- Atualizar botão principal
+    	-- Atualizar botÃ£o principal
     	if count > 0 then
     		toggleBtn.Text = "?? SELECIONADOS (" .. count .. ")"
     		toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
@@ -1775,7 +1774,7 @@ local function LocalScript_3_generatedScript()
     		toggleBtn.Text = "?? SELECIONAR ITENS"
     		toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     	end
-    	-- Atualizar botão confirmar
+    	-- Atualizar botÃ£o confirmar
     	confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
     	-- Atualizar visibilidade dos elementos
     	if count > 0 then
@@ -1788,11 +1787,11 @@ local function LocalScript_3_generatedScript()
     	-- Atualizar sistema de auto-compra
     	updateTargetNames()
     	updateButtonAppearance()
-    	-- CRÍTICO: Atualizar a lista visual sempre que a UI for atualizada
+    	-- CRÃTICO: Atualizar a lista visual sempre que a UI for atualizada
     	refreshList()
     	print("?? UI atualizada - Selecionados:", count)
     end
-    -- Função para esconder/mostrar elementos quando o ScrollingFrame abre/fecha
+    -- FunÃ§Ã£o para esconder/mostrar elementos quando o ScrollingFrame abre/fecha
     local function hideElementsForSelection()
     	autoBuyBtn.Visible = false
     	listFR.Visible = false
@@ -1802,11 +1801,11 @@ local function LocalScript_3_generatedScript()
     local function showElementsAfterSelection()
     	autoBuyBtn.Visible = true
     	inf.Visible = true
-    	-- listFR e titleLabel serão mostrados conforme necessário na função updateCompleteUI
+    	-- listFR e titleLabel serÃ£o mostrados conforme necessÃ¡rio na funÃ§Ã£o updateCompleteUI
     end
-    -- FUNÇÃO 100% SINCRONIZADA para popular o scrolling
+    -- FUNÃ‡ÃƒO 100% SINCRONIZADA para popular o scrolling
     local function populateScrolling()
-    	-- Limpar botões existentes
+    	-- Limpar botÃµes existentes
     	for _, child in pairs(scrollingFR:GetChildren()) do
     		if child:IsA("TextButton") then
     			child:Destroy()
@@ -1827,14 +1826,14 @@ local function LocalScript_3_generatedScript()
     		btn.Text = name
     		btn.TextXAlignment = Enum.TextXAlignment.Left
     		btn.Parent = scrollingFR
-    		-- SINCRONIZAÇÃO CRÍTICA: Aplicar estilo se já estiver selecionado
+    		-- SINCRONIZAÃ‡ÃƒO CRÃTICA: Aplicar estilo se jÃ¡ estiver selecionado
     		if selected[name] then
     			btn.BackgroundTransparency = 0.7
     			btn.Text = "? " .. name
-    			print("?? Botão já selecionado:", name)
+    			print("?? BotÃ£o jÃ¡ selecionado:", name)
     		end
     		btn.MouseButton1Click:Connect(function()
-    			-- Alterna seleção
+    			-- Alterna seleÃ§Ã£o
     			if selected[name] then
     				selected[name] = nil
     				btn.BackgroundTransparency = 0.35
@@ -1846,7 +1845,7 @@ local function LocalScript_3_generatedScript()
     				btn.Text = "? " .. name
     				print("? Adicionado:", name)
     			end
-    			-- Atualizar contador do botão confirmar apenas
+    			-- Atualizar contador do botÃ£o confirmar apenas
     			local count = 0
     			for _ in pairs(selected) do count = count + 1 end
     			confirmBtn.Text = "CONFIRMAR (" .. count .. ")"
@@ -1855,7 +1854,7 @@ local function LocalScript_3_generatedScript()
     	end
     	scrollingFR.CanvasSize = UDim2.new(0, 0, 0, y)
     end
-    -- FUNÇÃO 100% SINCRONIZADA para atualizar a lista
+    -- FUNÃ‡ÃƒO 100% SINCRONIZADA para atualizar a lista
     local function refreshList()
     	-- Limpar lista atual
     	for _, child in pairs(listFR:GetChildren()) do
@@ -1865,7 +1864,7 @@ local function LocalScript_3_generatedScript()
     	end
     	local y = 0
     	print("?? Atualizando ListFR - Itens selecionados:")
-    	-- SINCRONIZAÇÃO CRÍTICA: Ordenar os nomes para exibição consistente
+    	-- SINCRONIZAÃ‡ÃƒO CRÃTICA: Ordenar os nomes para exibiÃ§Ã£o consistente
     	local sortedNames = {}
     	for name in pairs(selected) do
     		table.insert(sortedNames, name)
@@ -1885,7 +1884,7 @@ local function LocalScript_3_generatedScript()
     		lbl.Font = Enum.Font.Arcade
     		lbl.TextSize = 11
     		lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    		lbl.Text = "• " .. name
+    		lbl.Text = "Â• " .. name
     		lbl.TextXAlignment = Enum.TextXAlignment.Left
     		lbl.Parent = entry
     		local btnX = Instance.new("TextButton")
@@ -1899,13 +1898,13 @@ local function LocalScript_3_generatedScript()
     		btnX.Parent = entry
     		btnX.MouseButton1Click:Connect(function()
     			print("??? Removendo pelo X:", name)
-    			-- Remover da seleção
+    			-- Remover da seleÃ§Ã£o
     			selected[name] = nil
-    			-- CRÍTICO: Salvar e sincronizar IMEDIATAMENTE
+    			-- CRÃTICO: Salvar e sincronizar IMEDIATAMENTE
     			saveSelectedNames()
     			-- Atualizar TODA a UI de forma sincronizada
     			updateCompleteUI()
-    			-- CRÍTICO: Se o ScrollingFrame estiver aberto, sincronizar também
+    			-- CRÃTICO: Se o ScrollingFrame estiver aberto, sincronizar tambÃ©m
     			if scrollingFR.Visible then
     				populateScrolling()
     			end
@@ -1918,21 +1917,21 @@ local function LocalScript_3_generatedScript()
     	end
     	print("? ListFR atualizado com", #sortedNames, "itens")
     end
-    -- FUNÇÃO PARA MOSTRAR STATUS DE CARREGAMENTO
+    -- FUNÃ‡ÃƒO PARA MOSTRAR STATUS DE CARREGAMENTO
     local function showLoadingStatus()
     	toggleBtn.Text = "?? CARREGANDO..."
     	toggleBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 0)
     	autoBuyBtn.Visible = false
     end
-    -- FUNÇÃO PARA FINALIZAR CARREGAMENTO
+    -- FUNÃ‡ÃƒO PARA FINALIZAR CARREGAMENTO
     local function finishLoading()
     	SCRIPT_LOADED = true
     	updateCompleteUI()
     	print("? Script carregado completamente!")
     end
-    -- EVENTOS DOS BOTÕES TOTALMENTE SINCRONIZADOS
+    -- EVENTOS DOS BOTÃ•ES TOTALMENTE SINCRONIZADOS
     toggleBtn.MouseButton1Click:Connect(function()
-    	-- VERIFICAR SE O SCRIPT ESTÁ CARREGADO
+    	-- VERIFICAR SE O SCRIPT ESTÃ CARREGADO
     	if not SCRIPT_LOADED then
     		toggleBtn.Text = "?? AGUARDE O CARREGAMENTO!"
     		toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
@@ -1945,7 +1944,7 @@ local function LocalScript_3_generatedScript()
     		return
     	end
     	if scrollingFR.Visible then
-    		-- Fechar o seletor SEM confirmar alterações
+    		-- Fechar o seletor SEM confirmar alteraÃ§Ãµes
     		scrollingFR.Visible = false
     		confirmBtn.Visible = false
     		showElementsAfterSelection()
@@ -1958,7 +1957,7 @@ local function LocalScript_3_generatedScript()
     		confirmBtn.Visible = true
     		toggleBtn.Text = "? FECHAR SELETOR"
     		toggleBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-    		-- CRÍTICO: Popular o scrolling SINCRONIZADO com a seleção atual
+    		-- CRÃTICO: Popular o scrolling SINCRONIZADO com a seleÃ§Ã£o atual
     		populateScrolling()
     	end
     end)
@@ -1973,15 +1972,15 @@ local function LocalScript_3_generatedScript()
     		confirmBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
     		return
     	end
-    	-- CRÍTICO: Salvar e aplicar alterações de forma sincronizada
+    	-- CRÃTICO: Salvar e aplicar alteraÃ§Ãµes de forma sincronizada
     	saveSelectedNames()
     	-- Fechar seletor
     	scrollingFR.Visible = false
     	confirmBtn.Visible = false
     	showElementsAfterSelection()
-    	-- CRÍTICO: Atualizar TODA a UI de forma 100% sincronizada
+    	-- CRÃTICO: Atualizar TODA a UI de forma 100% sincronizada
     	updateCompleteUI()
-    	print("? Seleção confirmada e sincronizada:", count, "itens")
+    	print("? SeleÃ§Ã£o confirmada e sincronizada:", count, "itens")
     end)
     autoBuyBtn.MouseButton1Click:Connect(function()
     	if not SCRIPT_LOADED then
@@ -2004,19 +2003,19 @@ local function LocalScript_3_generatedScript()
     		stopScript()
     	end
     end)
-    -- INICIALIZAÇÃO 100% SINCRONIZADA COM CARREGAMENTO CONTROLADO
+    -- INICIALIZAÃ‡ÃƒO 100% SINCRONIZADA COM CARREGAMENTO CONTROLADO
     coroutine.wrap(function()
     	print("?? Iniciando carregamento do script...")
     	showLoadingStatus()
-    	-- Etapa 1: Configurar sistema de comunicação
-    	print("?? Configurando sistema de comunicação...")
+    	-- Etapa 1: Configurar sistema de comunicaÃ§Ã£o
+    	print("?? Configurando sistema de comunicaÃ§Ã£o...")
     	setupCommunicationSystem()
     	wait(0.5)
-    	-- Etapa 2: Carregar seleção salva
-    	print("?? Carregando seleção salva...")
+    	-- Etapa 2: Carregar seleÃ§Ã£o salva
+    	print("?? Carregando seleÃ§Ã£o salva...")
     	loadSavedSelection()
     	wait(0.5)
-    	-- Etapa 3: Atualizar nomes disponíveis
+    	-- Etapa 3: Atualizar nomes disponÃ­veis
     	print("?? Carregando lista de brainrots...")
     	updateAvailableNames()
     	wait(0.5)
@@ -2030,9 +2029,9 @@ local function LocalScript_3_generatedScript()
     	updateButtonAppearance()
     	wait(0.5)
     	-- Finalizar carregamento
-    	print("? Carregamento concluído!")
+    	print("? Carregamento concluÃ­do!")
     	finishLoading()
-    	-- Escaneamento inicial após delay adicional
+    	-- Escaneamento inicial apÃ³s delay adicional
     	wait(2)
     	if AUTO_ACTIVATE and #targetNames > 0 then
     		scanExistingPrompts()
@@ -2057,7 +2056,7 @@ local function Animations_2_generatedScript()
     local onPosition = UDim2.new(0.55, 0, 0, 0)
     local offColor = Color3.fromRGB(255, 0, 0)      -- Vermelho (OFF)
     local onColor = Color3.fromRGB(0, 255, 0)       -- Verde (ON)
-    -- Inicialização
+    -- InicializaÃ§Ã£o
     boll.Position = offPosition
     toggle.BackgroundColor3 = offColor
     toggle.MouseButton1Click:Connect(function()
@@ -2079,13 +2078,13 @@ local function LocalScript_4_generatedScript()
     local boll = toggle:WaitForChild("Boll")
     local toggled = false
     local tweenService = game:GetService("TweenService")
-    -- Configurações de tween
+    -- ConfiguraÃ§Ãµes de tween
     local tweenInfo = TweenInfo.new(
-    	0.3, -- duração
+    	0.3, -- duraÃ§Ã£o
     	Enum.EasingStyle.Sine,
     	Enum.EasingDirection.Out
     )
-    -- Posições e cores
+    -- PosiÃ§Ãµes e cores
     local offPosition = UDim2.new(0, 0, 0, 0)
     local onPosition = UDim2.new(0.5, 0, 0, 0)
     local offColor = Color3.fromRGB(255, 50, 50) -- Vermelho
@@ -2098,7 +2097,7 @@ local function LocalScript_4_generatedScript()
     	-- Define o destino com base no estado
     	local targetPosition = toggled and onPosition or offPosition
     	local targetColor = toggled and onColor or offColor
-    	-- Tween de posição
+    	-- Tween de posiÃ§Ã£o
     	local moveTween = tweenService:Create(boll, tweenInfo, {Position = targetPosition})
     	-- Tween de cor
     	local colorTween = tweenService:Create(boll, tweenInfo, {BackgroundColor3 = targetColor})
@@ -2115,13 +2114,13 @@ local function LocalScript_5_generatedScript()
     local boll = toggle:WaitForChild("Boll")
     local toggled = false
     local tweenService = game:GetService("TweenService")
-    -- Configurações de tween
+    -- ConfiguraÃ§Ãµes de tween
     local tweenInfo = TweenInfo.new(
-    	0.3, -- duração
+    	0.3, -- duraÃ§Ã£o
     	Enum.EasingStyle.Sine,
     	Enum.EasingDirection.Out
     )
-    -- Posições e cores
+    -- PosiÃ§Ãµes e cores
     local offPosition = UDim2.new(0, 0, 0, 0)
     local onPosition = UDim2.new(0.5, 0, 0, 0)
     local offColor = Color3.fromRGB(255, 50, 50) -- Vermelho
@@ -2134,7 +2133,7 @@ local function LocalScript_5_generatedScript()
     	-- Define o destino com base no estado
     	local targetPosition = toggled and onPosition or offPosition
     	local targetColor = toggled and onColor or offColor
-    	-- Tween de posição
+    	-- Tween de posiÃ§Ã£o
     	local moveTween = tweenService:Create(boll, tweenInfo, {Position = targetPosition})
     	-- Tween de cor
     	local colorTween = tweenService:Create(boll, tweenInfo, {BackgroundColor3 = targetColor})
